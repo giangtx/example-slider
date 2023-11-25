@@ -1,0 +1,226 @@
+<html>
+
+<head>
+    <title>Test Slider</title>
+    <style>
+        body {
+            color: #333;
+            text-align: center;
+            background: #222;
+            margin: 0;
+        }
+
+        ul {
+            padding: 0;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 50px 0;
+        }
+
+        main h1 {
+            margin-bottom: 50px;
+        }
+
+        .wrapper {
+            position: relative;
+        }
+
+        .wrapper:before,
+        .wrapper:after {
+            position: absolute;
+            top: 0;
+            z-index: 1;
+            content: "";
+            display: block;
+            width: 20px;
+            height: 100%;
+        }
+
+        .wrapper:before {
+            left: 0;
+            background: linear-gradient(90deg, #222, transparent);
+        }
+
+        .wrapper:after {
+            right: 0;
+            background: linear-gradient(-90deg, #222, transparent);
+        }
+
+        .items {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 0;
+            cursor: pointer;
+        }
+
+        .items.active {
+            cursor: grab;
+        }
+
+        .item {
+            display: inline-block;
+            margin-left: 20px;
+            user-select: none;
+            background: tomato;
+            width: 50%;
+            height: 130px;
+            color: #222;
+            font-size: 33px;
+            font-weight: bold;
+            line-height: 130px;
+        }
+
+        .item:last-child {
+            margin-right: 20px;
+        }
+
+        @media screen and (min-width: 500px) {
+            .item {
+                width: 33%;
+            }
+        }
+
+        @media screen and (min-width: 800px) {
+            .item {
+                width: 25%;
+            }
+        }
+
+        @media screen and (min-width: 1200px) {
+            .wrapper {
+                margin-left: -20px;
+            }
+
+            .item {
+                width: 20%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h1>Slide</h1>
+        <div class="wrapper">
+            <ul class="items">
+                <li class="item">0</li>
+                <li class="item">1</li>
+                <li class="item">2</li>
+                <li class="item">3</li>
+                <li class="item">4</li>
+                <li class="item">5</li>
+                <li class="item">6</li>
+                <li class="item">7</li>
+                <li class="item">8</li>
+                <li class="item">9</li>
+            </ul>
+        </div>
+        <div>
+            <button class="btn-pre">Pre</button>
+            <button class="btn-next">Next</button>
+        </div>
+    </main>
+    <script>
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+        const slider = document.querySelector('.items');
+
+        const end = () => {
+            isDown = false;
+            slider.classList.remove('active');
+            // Update the active item based on the current scroll position
+            active = Math.round(slider.scrollLeft / itemWidth);
+        }
+
+        const start = (e) => {
+            isDown = true;
+            slider.classList.add('active');
+            startX = e.pageX || e.touches[0].pageX - slider.offsetLeft;
+            scrollLeft = slider.scrollLeft;
+        }
+
+        const move = (e) => {
+            if (!isDown) return;
+
+            e.preventDefault();
+            const x = e.pageX || e.touches[0].pageX - slider.offsetLeft;
+            const dist = (x - startX);
+            slider.scrollLeft = scrollLeft - dist;
+
+            
+        }
+
+        (() => {
+            slider.addEventListener('mousedown', start);
+            slider.addEventListener('touchstart', start);
+
+            slider.addEventListener('mousemove', move);
+            slider.addEventListener('touchmove', move);
+
+            slider.addEventListener('mouseleave', end);
+            slider.addEventListener('mouseup', end);
+            slider.addEventListener('touchend', end);
+        })();
+// Get the buttons
+const nextButton = document.querySelector('.btn-next');
+const preButton = document.querySelector('.btn-pre');
+
+
+
+// Get the items
+const items = document.querySelector('.items');
+console.log(items.firstElementChild.offsetWidth);
+
+// Calculate the width of a single item (including margin)
+const itemWidth = items.firstElementChild.offsetWidth + parseInt(window.getComputedStyle(items.firstElementChild).marginRight) * 2;
+
+// Variable to keep track of the active item
+let active = 0;
+
+// Function to update the active item
+function updateActive(newActive) {
+    // Check if the new active index is out of bounds
+    if (newActive < 0) {
+        active = items.children.length - 1; // Set to the last item
+    } else if (newActive >= items.children.length) {
+        active = 0; // Set to the first item
+    } else {
+        active = newActive;
+    }
+    // Scroll the active item into view
+    items.children[active].scrollIntoView({
+        behavior: 'smooth',
+        inline: 'start'
+    });
+}
+
+// Add event listener for the next button
+nextButton.addEventListener('click', () => {
+    // Update the active item
+    updateActive((active + 1) % items.children.length);
+});
+
+// Add event listener for the pre button
+preButton.addEventListener('click', () => {
+    // Update the active item
+    updateActive((active - 1 + items.children.length) % items.children.length);
+});
+
+// Scroll to the active item when the page loads
+window.addEventListener('load', () => {
+    updateActive(active);
+});
+    </script>
+</body>
+
+</html>
